@@ -32,6 +32,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.dmfs.android.bolts.color.colors.AttributeColor;
 import org.dmfs.android.unifieddatetimepicker.DateTimePicker;
 import org.dmfs.android.unifieddatetimepicker.HapticFeedbackController;
 import org.dmfs.android.unifieddatetimepicker.OnDateTimeSetListener;
@@ -152,11 +153,10 @@ public class TimeDisplay extends FrameLayout implements DateTimePicker, View.OnC
 
         setFocusable(true);
         setFocusableInTouchMode(true);
-        int colorPrimary = Utils.fetchPrimaryColor(context);
 
         float hsv[] = new float[3];
 
-        Color.colorToHSV(colorPrimary, hsv);
+        Color.colorToHSV(new AttributeColor(context, android.R.attr.colorBackground).argb(), hsv);
         mThemeDark = hsv[2] * hsv[2] * (1 - hsv[1]) < 0.60;
 
         KeyboardListener keyboardListener = new KeyboardListener();
@@ -169,7 +169,7 @@ public class TimeDisplay extends FrameLayout implements DateTimePicker, View.OnC
         mMinutePickerDescription = res.getString(R.string.minute_picker_description);
         mSelectMinutes = res.getString(R.string.select_minutes);
         mSelectedColor = res.getColor(mThemeDark ? android.R.color.white : R.color.numbers_text_color);
-        mUnselectedColor = (res.getColor(mThemeDark ? android.R.color.white : R.color.numbers_text_color) & 0x00ffffff) | 0xb0000000;
+        mUnselectedColor = (res.getColor(mThemeDark ? android.R.color.white : R.color.numbers_text_color) & 0x00ffffff) | 0x80000000;
 
         mSeparator = findViewById(R.id.separator);
         mSetTimeButton = (TextView) findViewById(R.id.set_time_label);
@@ -492,6 +492,7 @@ public class TimeDisplay extends FrameLayout implements DateTimePicker, View.OnC
 
             pulseAnimator = Utils.getGrowAnimator(mSetTimeButton, 0.75f, mCurrentTime.isAllDay(), 0f);
             pulseAnimator.start();
+//            Utils.swipeAnimator(mSetTimeButton, -getWidth()/2).start();
 
             Utils.getGrowAnimator(mToAllDay, 0.75f, mCurrentTime.isAllDay(), 1f).start();
         }
@@ -504,6 +505,7 @@ public class TimeDisplay extends FrameLayout implements DateTimePicker, View.OnC
 
             pulseAnimator = Utils.getShrinkAnimator(mSetTimeButton, 0.75f, mCurrentTime.isAllDay(), null);
             pulseAnimator.start();
+//            Utils.swipeAnimator(mSetTimeButton, getWidth()/2).start();
 
             Utils.getShrinkAnimator(mToAllDay, 0.75f, mCurrentTime.isAllDay(), 0f).start();
         }

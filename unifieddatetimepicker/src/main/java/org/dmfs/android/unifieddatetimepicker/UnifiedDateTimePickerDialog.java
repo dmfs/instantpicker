@@ -1,11 +1,15 @@
 package org.dmfs.android.unifieddatetimepicker;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewCompat;
 import android.text.format.DateFormat;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -145,12 +149,29 @@ public final class UnifiedDateTimePickerDialog extends DialogFragment
     }
 
 
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState)
+    {
+        Dialog result = super.onCreateDialog(savedInstanceState);
+        result.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        if (Build.VERSION.SDK_INT >= 21)
+        {
+            // set a background with round corners
+            result.getWindow().setBackgroundDrawable(ContextCompat.getDrawable(getContext(), R.drawable.dmfs_dialog_background));
+            // ensure we still have the right drop shadow in place
+            ViewCompat.setElevation(result.getWindow().getDecorView(), 24);
+        }
+        // else: on ancient devices we'll just continue using default square corners
+        return result;
+    }
+
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         mDialogView = inflater.inflate(R.layout.udtp_dialog, container, false);
-        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
         Context context = getContext();
 

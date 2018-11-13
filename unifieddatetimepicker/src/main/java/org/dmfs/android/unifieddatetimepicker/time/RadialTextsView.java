@@ -33,6 +33,7 @@ import android.util.Log;
 import android.view.View;
 
 import org.dmfs.android.unifieddatetimepicker.R;
+import org.dmfs.jems.generator.Generator;
 
 
 /**
@@ -83,10 +84,7 @@ public class RadialTextsView extends View
     ObjectAnimator mReappearAnimator;
     private InvalidateUpdateListener mInvalidateUpdateListener;
 
-    private int mSelectionDegrees;
-    private boolean mSelectionIsInner;
-
-    private Path mSelectionPath;
+    private Generator<Path> mSelectionPath;
 
 
     public RadialTextsView(Context context)
@@ -255,7 +253,7 @@ public class RadialTextsView extends View
         canvas.save();
         if (mSelectionPath != null)
         {
-            canvas.clipPath(mSelectionPath);
+            canvas.clipPath(mSelectionPath.next());
 
             // Draw the texts in the pre-calculated positions.
             drawTexts(canvas, mTextSize, mTypefaceLight, mTexts, mTextGridWidths, mTextGridHeights, mWhitePaint);
@@ -278,17 +276,10 @@ public class RadialTextsView extends View
 
 
     /**
-     * Set the selection.
-     *
-     * @param selectionDegrees
-     *         The degrees to be selected.
-     * @param isInnerCircle
-     *         Whether the selection should be in the inner circle or outer. Will be ignored if hasInnerCircle was initialized to false.
+     * Set the selection Path {@link Generator}.
      */
-    public void setSelection(int selectionDegrees, boolean isInnerCircle, Path selectionPath)
+    public void setSelection(Generator<Path> selectionPath)
     {
-        mSelectionDegrees = selectionDegrees;
-        mSelectionIsInner = isInnerCircle;
         mSelectionPath = selectionPath;
     }
 
@@ -300,7 +291,7 @@ public class RadialTextsView extends View
     private void calculateGridSizes(float numbersRadius, float xCenter, float yCenter, float textSize, float[] textGridHeights, float[] textGridWidths)
     {
         /*
-		 * The numbers need to be drawn in a 7x7 grid, representing the points on the Unit Circle.
+         * The numbers need to be drawn in a 7x7 grid, representing the points on the Unit Circle.
 		 */
         float offset1 = numbersRadius;
         // cos(30) = a / r => r * cos(30) = a => r * √3/2 = a
@@ -350,7 +341,7 @@ public class RadialTextsView extends View
     {
         Keyframe kf0, kf1, kf2, kf3;
         float midwayPoint = 0.2f;
-        int duration = 500;
+        int duration = 400;
 
         // Set up animator for disappearing.
         // kf0 = Keyframe.ofFloat(0f, 1);

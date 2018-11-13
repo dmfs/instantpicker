@@ -16,6 +16,7 @@
 
 package org.dmfs.android.unifieddatetimepicker.time;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
@@ -209,7 +210,6 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
      * @param context
      * @param initialHoursOfDay
      * @param initialMinutes
-     * @param is24HourMode
      */
     public void initialize(Context context, HapticFeedbackController hapticFeedbackController, int initialHoursOfDay, int initialMinutes,
                            PickerContext pickerContext)
@@ -294,7 +294,7 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
             int hourDegrees = (value % 12) * HOUR_VALUE_TO_DEGREES_STEP_SIZE;
             mHourRadialSelectorView.setSelection(hourDegrees, isHourInnerCircle(value), false);
             mHourRadialSelectorView.invalidate();
-            mHourRadialTextsView.setSelection(hourDegrees, isHourInnerCircle(value), mHourRadialSelectorView.toPath());
+            mHourRadialTextsView.setSelection(mHourRadialSelectorView::toPath);
             mHourRadialTextsView.invalidate();
         }
         else if (index == MINUTE_INDEX)
@@ -303,7 +303,7 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
             int minuteDegrees = value * MINUTE_VALUE_TO_DEGREES_STEP_SIZE;
             mMinuteRadialSelectorView.setSelection(minuteDegrees, false, false);
             mMinuteRadialSelectorView.invalidate();
-            mMinuteRadialTextsView.setSelection(minuteDegrees, false, mMinuteRadialSelectorView.toPath());
+            mMinuteRadialTextsView.setSelection(mMinuteRadialSelectorView::toPath);
             mMinuteRadialTextsView.invalidate();
         }
     }
@@ -583,7 +583,7 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
         radialSelectorView.setSelection(degrees, isInnerCircle, forceDrawDot);
         radialSelectorView.invalidate();
 
-        radialTextsView.setSelection(degrees, isInnerCircle, radialSelectorView.toPath());
+        radialTextsView.setSelection(radialSelectorView::toPath);
         radialTextsView.invalidate();
 
 		/*
@@ -674,14 +674,20 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
                 anims[0] = mHourRadialTextsView.getDisappearAnimator();
                 anims[1] = mHourRadialSelectorView.getDisappearAnimator();
                 anims[2] = mMinuteRadialTextsView.getReappearAnimator();
-                anims[3] = mMinuteRadialSelectorView.getReappearAnimator();
+                anims[3] = mMinuteRadialSelectorView.getReappearAnimator(mHourRadialSelectorView.degreesKeyFrame(0f),
+                        mHourRadialSelectorView.radiusKeyFrame(0f));
+                // during the animation the selection path is provided by the new selector
+                mHourRadialTextsView.setSelection(mMinuteRadialSelectorView::toPath);
             }
-            else if (index == HOUR_INDEX)
+            else // if (index == HOUR_INDEX)
             {
                 anims[0] = mHourRadialTextsView.getReappearAnimator();
-                anims[1] = mHourRadialSelectorView.getReappearAnimator();
+                anims[1] = mHourRadialSelectorView.getReappearAnimator(mMinuteRadialSelectorView.degreesKeyFrame(0f),
+                        mMinuteRadialSelectorView.radiusKeyFrame(0f));
                 anims[2] = mMinuteRadialTextsView.getDisappearAnimator();
                 anims[3] = mMinuteRadialSelectorView.getDisappearAnimator();
+                // during the animation the selection path is provided by the new selector
+                mMinuteRadialTextsView.setSelection(mHourRadialSelectorView::toPath);
             }
 
             if (mTransition != null && mTransition.isRunning())
@@ -689,6 +695,37 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
                 mTransition.end();
             }
             mTransition = new AnimatorSet();
+            // add a listener to restore the path generator
+            mTransition.addListener(new Animator.AnimatorListener()
+            {
+                @Override
+                public void onAnimationStart(Animator animator)
+                {
+
+                }
+
+
+                @Override
+                public void onAnimationEnd(Animator animator)
+                {
+                    mHourRadialTextsView.setSelection(mHourRadialSelectorView::toPath);
+                    mMinuteRadialTextsView.setSelection(mMinuteRadialSelectorView::toPath);
+                }
+
+
+                @Override
+                public void onAnimationCancel(Animator animator)
+                {
+
+                }
+
+
+                @Override
+                public void onAnimationRepeat(Animator animator)
+                {
+
+                }
+            });
             mTransition.playTogether(anims);
             mTransition.start();
         }
@@ -701,7 +738,6 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
             mMinuteRadialTextsView.setAlpha(minuteAlpha);
             mMinuteRadialSelectorView.setAlpha(minuteAlpha);
         }
-
     }
 
 
@@ -794,8 +830,8 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
                 // If we're in the middle of touching down on AM or PM, check if we still are.
                 // If so, no-op. If not, remove its pressed state. Either way, no need to check
                 // for touches on the other circle.
-				/*
-				 * if (mIsTouchingAmOrPm == AM || mIsTouchingAmOrPm == PM) { mHandler.removeCallbacksAndMessages(null); int isTouchingAmOrPm =
+                /*
+                 * if (mIsTouchingAmOrPm == AM || mIsTouchingAmOrPm == PM) { mHandler.removeCallbacksAndMessages(null); int isTouchingAmOrPm =
 				 * mAmPmCirclesView.getIsTouchingAmOrPm(eventX, eventY); if (isTouchingAmOrPm != mIsTouchingAmOrPm) { mAmPmCirclesView.setAmOrPmPressed(-1);
 				 * mAmPmCirclesView.invalidate(); mIsTouchingAmOrPm = -1; } break; }
 				 */
@@ -838,8 +874,8 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
                 mDoingTouch = false;
 
                 // If we're touching AM or PM, set it as selected, and tell the listener.
-				/*
-				 * if (mIsTouchingAmOrPm == AM || mIsTouchingAmOrPm == PM) { int isTouchingAmOrPm = mAmPmCirclesView.getIsTouchingAmOrPm(eventX, eventY);
+                /*
+                 * if (mIsTouchingAmOrPm == AM || mIsTouchingAmOrPm == PM) { int isTouchingAmOrPm = mAmPmCirclesView.getIsTouchingAmOrPm(eventX, eventY);
 				 * mAmPmCirclesView.setAmOrPmPressed(-1); mAmPmCirclesView.invalidate();
 				 * 
 				 * if (isTouchingAmOrPm == mIsTouchingAmOrPm) { mAmPmCirclesView.setAmOrPm(isTouchingAmOrPm); if (getIsCurrentlyAmOrPm() != isTouchingAmOrPm) {
@@ -853,8 +889,8 @@ public class RadialPickerLayout extends FrameLayout implements OnTouchListener
                     if (degrees != -1)
                     {
                         value = reselectSelector(degrees, isInnerCircle[0], !mDoingMove, false);
-						/*
-						 * if (getCurrentItemShowing() == HOUR_INDEX && !mIs24HourMode) { int amOrPm = getIsCurrentlyAmOrPm(); if (amOrPm == AM && value == 12)
+                        /*
+                         * if (getCurrentItemShowing() == HOUR_INDEX && !mIs24HourMode) { int amOrPm = getIsCurrentlyAmOrPm(); if (amOrPm == AM && value == 12)
 						 * { value = 0; } else if (amOrPm == PM && value != 12) { value += 12; } }
 						 */
                         setValueForItem(getCurrentItemShowing(), value);

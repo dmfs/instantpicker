@@ -188,7 +188,7 @@ public abstract class DatePicker extends ListView implements OnScrollListener, D
      * time is at the top of the view. If the new time is already in view the list will not be scrolled unless forceScroll is true. This time may optionally be
      * highlighted as selected as well.
      *
-     * @param time
+     * @param date
      *         The time to move to
      * @param animate
      *         Whether to scroll to the given time or just redraw at the new location
@@ -641,6 +641,7 @@ public abstract class DatePicker extends ListView implements OnScrollListener, D
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
+        canvas.drawLine(0, 0, getWidth(), 0, mDividerPaint);
 
         canvas.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1, mDividerPaint);
     }

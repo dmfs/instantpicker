@@ -19,6 +19,7 @@ package org.dmfs.android.unifieddatetimepicker;
 import android.animation.Keyframe;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -159,6 +160,16 @@ public class Utils
             animator = ObjectAnimator.ofPropertyValuesHolder(labelToAnimate, scaleX, scaleY);
         }
         animator.setDuration(SHRINK_ANIMATOR_DURATION);
+
+        return animator;
+    }
+
+
+    public static ObjectAnimator swipeAnimator(View labelToAnimate, int translation)
+    {
+        PropertyValuesHolder translateX = PropertyValuesHolder.ofFloat(View.TRANSLATION_X, 0, translation);
+        ObjectAnimator animator = ObjectAnimator.ofPropertyValuesHolder(labelToAnimate, translateX);
+        animator.setDuration(400);
 
         return animator;
     }

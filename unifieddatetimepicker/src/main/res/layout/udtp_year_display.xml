@@ -15,23 +15,24 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="left|start|center_vertical"
-    android:orientation="vertical"
-    android:paddingBottom="1dp"
-    android:paddingTop="1dp">
-
-    <org.dmfs.android.unifieddatetimepicker.AccessibleTextView
-        android:id="@android:id/title"
-        style="@style/udtp_display_label"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left|start"
-        android:gravity="left|start|top"
-        android:scaleX="0.75"
-        android:scaleY="0.75"
-        android:textSize="@dimen/selected_date_year_size" />
+        android:gravity="left|start|center_vertical"
+        android:orientation="vertical"
+        android:paddingBottom="1dp"
+        android:paddingTop="1dp">
+
+    <org.dmfs.android.unifieddatetimepicker.AccessibleTextView
+            android:id="@android:id/title"
+            style="@style/udtp_display_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|start"
+            android:gravity="left|start|top"
+            android:scaleX="0.75"
+            android:scaleY="0.75"
+            android:alpha="0.5"
+            android:textSize="@dimen/selected_date_year_size"/>
 
 
 </LinearLayout>

@@ -33,6 +33,8 @@ import android.view.View;
 import org.dmfs.android.unifieddatetimepicker.R;
 import org.dmfs.android.unifieddatetimepicker.Utils;
 
+import static java.lang.Math.abs;
+
 
 /**
  * View to show what number is selected. This will draw a blue circle over the number, with a blue line coming from the center of the main circle to the edge of
@@ -209,6 +211,29 @@ public class RadialSelectorView extends View
 
 
     /**
+     * Set the selection.
+     *
+     * @param selectionDegrees
+     *         The degrees to be selected.
+     */
+    public void setDegrees(float selectionDegrees)
+    {
+        if (selectionDegrees >= 2 * Math.PI)
+        {
+            selectionDegrees -= 2 * Math.PI;
+        }
+        mSelectionDegrees = (int) (selectionDegrees * 180 / Math.PI);
+        mSelectionRadians = selectionDegrees;
+    }
+
+
+    public void setRadius(float radius)
+    {
+        mNumbersRadiusMultiplier = radius;
+    }
+
+
+    /**
      * Allows for smoother animations.
      */
     @Override
@@ -243,9 +268,9 @@ public class RadialSelectorView extends View
                 // If we're told to force the coordinates to be legal, we'll set the isInnerCircle
                 // boolean based based off whichever number the coordinates are closer to.
                 int innerNumberRadius = (int) (mCircleRadius * mInnerNumbersRadiusMultiplier);
-                int distanceToInnerNumber = (int) Math.abs(hypotenuse - innerNumberRadius);
+                int distanceToInnerNumber = (int) abs(hypotenuse - innerNumberRadius);
                 int outerNumberRadius = (int) (mCircleRadius * mOuterNumbersRadiusMultiplier);
-                int distanceToOuterNumber = (int) Math.abs(hypotenuse - outerNumberRadius);
+                int distanceToOuterNumber = (int) abs(hypotenuse - outerNumberRadius);
 
                 isInnerCircle[0] = (distanceToInnerNumber <= distanceToOuterNumber);
             }
@@ -279,7 +304,7 @@ public class RadialSelectorView extends View
             // the coordinates' distance to the number is within the allowed distance.
             if (!forceLegal)
             {
-                int distanceToNumber = (int) Math.abs(hypotenuse - mLineLength);
+                int distanceToNumber = (int) abs(hypotenuse - mLineLength);
                 // The max allowed distance will be defined as the distance from the center of the
                 // number to the edge of the circle.
                 int maxAllowedDistance = (int) (mCircleRadius * (1 - mNumbersRadiusMultiplier));
@@ -290,7 +315,7 @@ public class RadialSelectorView extends View
             }
         }
 
-        float opposite = Math.abs(pointY - mYCenter);
+        float opposite = abs(pointY - mYCenter);
         double radians = Math.asin(opposite / hypotenuse);
         int degrees = (int) (radians * 180 / Math.PI);
 
@@ -415,28 +440,38 @@ public class RadialSelectorView extends View
             return null;
         }
 
-        Keyframe kf0, kf1, kf2;
-        float midwayPoint = 0.2f;
-        int duration = 500;
+        Keyframe kf0, kf1;
+        int duration = 400;
 
-        // kf0 = Keyframe.ofFloat(0f, 1);
-        // kf1 = Keyframe.ofFloat(midwayPoint, mTransitionMidRadiusMultiplier);
-        // kf2 = Keyframe.ofFloat(1f, mTransitionEndRadiusMultiplier);
-        // PropertyValuesHolder radiusDisappear = PropertyValuesHolder.ofKeyframe(
-        // "animationRadiusMultiplier", kf0, kf1, kf2);
+//        kf0 = Keyframe.ofFloat(0f, 1);
+//        kf1 = Keyframe.ofFloat(midwayPoint, mTransitionMidRadiusMultiplier);
+//        kf2 = Keyframe.ofFloat(1f, mTransitionEndRadiusMultiplier);
+//        PropertyValuesHolder radiusDisappear = PropertyValuesHolder.ofKeyframe("animationRadiusMultiplier", kf0, kf1, kf2);
 
-        kf0 = Keyframe.ofFloat(0f, 1f);
+        kf0 = Keyframe.ofFloat(0f, 0f);
         kf1 = Keyframe.ofFloat(1f, 0f);
         PropertyValuesHolder fadeOut = PropertyValuesHolder.ofKeyframe("alpha", kf0, kf1);
 
-        ObjectAnimator disappearAnimator = ObjectAnimator.ofPropertyValuesHolder(this, /* radiusDisappear, */fadeOut).setDuration(duration);
+        ObjectAnimator disappearAnimator = ObjectAnimator.ofPropertyValuesHolder(this, fadeOut).setDuration(duration);
         disappearAnimator.addUpdateListener(mInvalidateUpdateListener);
 
         return disappearAnimator;
     }
 
 
-    public ObjectAnimator getReappearAnimator()
+    public Keyframe degreesKeyFrame(float pos)
+    {
+        return Keyframe.ofFloat(pos, (float) mSelectionRadians);
+    }
+
+
+    public Keyframe radiusKeyFrame(float pos)
+    {
+        return Keyframe.ofFloat(pos, mNumbersRadiusMultiplier);
+    }
+
+
+    public ObjectAnimator getReappearAnimator(Keyframe degreeStartFrame, Keyframe radiusStartFrame)
     {
         if (!mIsInitialized || !mDrawValuesReady)
         {
@@ -444,9 +479,8 @@ public class RadialSelectorView extends View
             return null;
         }
 
-        Keyframe kf0, kf1, kf2, kf3;
-        float midwayPoint = 0.2f;
-        int duration = 500;
+        Keyframe kf0, kf1, kf2;
+        int duration = 400;
 
         // The time points are half of what they would normally be, because this animation is
         // staggered against the disappear so they happen seamlessly. The reappear starts
@@ -456,21 +490,35 @@ public class RadialSelectorView extends View
         float totalDurationMultiplier = transitionDurationMultiplier + delayMultiplier;
         int totalDuration = (int) (duration * totalDurationMultiplier);
         float delayPoint = (delayMultiplier * duration) / totalDuration;
-        midwayPoint = 1 - (midwayPoint * (1 - delayPoint));
 
-        // kf0 = Keyframe.ofFloat(0f, mTransitionEndRadiusMultiplier);
-        // kf1 = Keyframe.ofFloat(delayPoint, mTransitionEndRadiusMultiplier);
-        // kf2 = Keyframe.ofFloat(midwayPoint, mTransitionMidRadiusMultiplier);
-        // kf3 = Keyframe.ofFloat(1f, 1);
-        // PropertyValuesHolder radiusReappear = PropertyValuesHolder.ofKeyframe(
-        // "animationRadiusMultiplier", kf0, kf1, kf2, kf3);
+//        kf0 = Keyframe.ofFloat(0f, mTransitionEndRadiusMultiplier);
+//        kf1 = Keyframe.ofFloat(delayPoint, mTransitionEndRadiusMultiplier);
+//        kf2 = Keyframe.ofFloat(midwayPoint, mTransitionMidRadiusMultiplier);
+//        kf3 = Keyframe.ofFloat(1f, 1);
+//        PropertyValuesHolder radiusReappear = PropertyValuesHolder.ofKeyframe("animationRadiusMultiplier", kf0, kf1, kf2, kf3);
 
-        kf0 = Keyframe.ofFloat(0f, 0f);
-        kf1 = Keyframe.ofFloat(delayPoint, 0f);
+        kf0 = Keyframe.ofFloat(0f, 1f);
+        kf1 = Keyframe.ofFloat(delayPoint, 1f);
         kf2 = Keyframe.ofFloat(1f, 1f);
         PropertyValuesHolder fadeIn = PropertyValuesHolder.ofKeyframe("alpha", kf0, kf1, kf2);
 
-        ObjectAnimator reappearAnimator = ObjectAnimator.ofPropertyValuesHolder(this, /* radiusReappear, */ fadeIn).setDuration(totalDuration);
+        float startDegrees = (Float) degreeStartFrame.getValue();
+        // check whether we should go via 0 degrees
+        float add = 0;
+        if (startDegrees - mSelectionRadians >= Math.PI)
+        {
+            add = (float) (2 * Math.PI);
+        }
+        if (startDegrees - mSelectionRadians <= -Math.PI)
+        {
+            add = -(float) (2 * Math.PI);
+        }
+
+        PropertyValuesHolder turn = PropertyValuesHolder.ofKeyframe("degrees", degreeStartFrame, Keyframe.ofFloat(1f, (float) mSelectionRadians + add));
+
+        PropertyValuesHolder radius = PropertyValuesHolder.ofKeyframe("radius", radiusStartFrame, Keyframe.ofFloat(1f, mNumbersRadiusMultiplier));
+
+        ObjectAnimator reappearAnimator = ObjectAnimator.ofPropertyValuesHolder(this, turn, fadeIn, radius).setDuration(totalDuration);
         reappearAnimator.addUpdateListener(mInvalidateUpdateListener);
         return reappearAnimator;
     }
