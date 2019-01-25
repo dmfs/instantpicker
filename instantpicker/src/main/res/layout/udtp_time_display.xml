@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  ~ Copyright (C) 2013 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License
+  -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <org.dmfs.android.instantpicker.AccessibleTextView
+            android:id="@+id/set_time_label"
+            style="@style/udtp_display_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:alpha="0.5"
+            android:gravity="center"
+            android:scaleX="0.75"
+            android:scaleY="0.75"
+            android:text="@string/udtp_all_day"
+            android:textAlignment="center"
+            android:textSize="@dimen/selected_date_month_size"/>
+
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/time_display_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:scaleX="0.75"
+            android:alpha="0.5"
+            android:scaleY="0.75">
+
+
+        <TextView
+                android:id="@+id/hour_space"
+                style="@style/time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/separator"
+                android:importantForAccessibility="no"
+                android:text="@string/time_placeholder"
+                android:visibility="invisible"/>
+
+        <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/hour_space"
+                android:layout_alignRight="@+id/hour_space"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/extra_time_label_margin"
+                android:layout_marginRight="@dimen/extra_time_label_margin">
+
+            <org.dmfs.android.instantpicker.AccessibleTextView
+                    android:id="@+id/hours"
+                    style="@style/time_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal"
+                    android:text="@string/time_placeholder"
+                    android:textColor="@android:color/white"/>
+        </FrameLayout>
+
+        <TextView
+                android:id="@+id/separator"
+                style="@style/time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:importantForAccessibility="no"
+                android:paddingLeft="@dimen/separator_padding"
+                android:paddingRight="@dimen/separator_padding"
+                android:text="@string/time_separator"/>
+
+        <TextView
+                android:id="@+id/minutes_space"
+                style="@style/time_label"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/separator"
+                android:importantForAccessibility="no"
+                android:text="@string/time_placeholder"
+                android:visibility="invisible"/>
+
+        <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/minutes_space"
+                android:layout_alignRight="@+id/minutes_space"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/extra_time_label_margin"
+                android:layout_marginRight="@dimen/extra_time_label_margin">
+
+            <org.dmfs.android.instantpicker.AccessibleTextView
+                    android:id="@+id/minutes"
+                    style="@style/time_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal"
+                    android:text="@string/time_placeholder"
+                    android:textColor="@android:color/white"/>
+        </FrameLayout>
+
+
+        <org.dmfs.android.instantpicker.AccessibleTextView
+                android:id="@+id/ampm_hitspace"
+                android:layout_width="@dimen/ampm_label_size"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/ampm_label"
+                android:layout_alignLeft="@+id/ampm_label"
+                android:layout_alignRight="@+id/ampm_label"
+                android:layout_alignTop="@+id/minutes_space"/>
+
+        <TextView
+                android:id="@+id/ampm_label"
+                style="@style/ampm_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/separator"
+                android:layout_toRightOf="@+id/minutes_space"
+                android:importantForAccessibility="no"
+                android:maxLines="1"
+                android:paddingLeft="@dimen/ampm_left_padding"
+                android:singleLine="true"
+                android:text="@string/time_placeholder"/>
+
+    </RelativeLayout>
+
+    <ImageView
+            android:id="@+id/to_all_day_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/separator"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="-16dp"
+            android:alpha="0.75"
+            android:clickable="true"
+            android:padding="12dp"
+            android:scaleX="0.75"
+            android:scaleY="0.75"
+            android:src="@drawable/ic_24_cancel_white"/>
+</FrameLayout>
