@@ -15,7 +15,8 @@
   -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <org.dmfs.android.instantpicker.AccessibleTextView
             android:id="@+id/set_time_label"
@@ -140,7 +141,7 @@
 
     </RelativeLayout>
 
-    <ImageView
+    <android.support.v7.widget.AppCompatImageView
             android:id="@+id/to_all_day_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -153,5 +154,6 @@
             android:padding="12dp"
             android:scaleX="0.75"
             android:scaleY="0.75"
+            app:tint="#80000000"
             android:src="@drawable/ic_24_cancel_white"/>
 </FrameLayout>
