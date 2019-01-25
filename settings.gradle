@@ -1,1 +1,1 @@
-include ':app', ':unifieddatetimepicker'
+include ':demo', ':instantpicker'
